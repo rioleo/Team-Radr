@@ -216,6 +216,26 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
       myPos = successor.getAgentState(self.index).getPosition()
       minDistance = min([self.getMazeDistance(myPos, food) for food in foodList])
       features['distanceToFood'] = minDistance
+    
+    #Capsule feature start
+    amIRed = successor.isOnRedTeam(self.index)
+    if amIRed:
+        capsulePos = successor.getBlueCapsules()
+    else:
+        capsulePos = successor.getRedCapsules()
+    if capsulePos:
+        selfPos = self.getPosition(successor)
+        #print capsulePos[1]
+        distanceToCapsule = self.getMazeDistance(capsulePos[0], selfPos)
+        #distanceToCapsule = abs(capsulePos[0][0]-selfPos[0])+abs(capsulePos[0][1]-selfPos[1])    
+        #print distanceToCapsule
+        features['distanceToCapsule'] = distanceToCapsule
+    else:
+        features['distanceToCapsule'] = 0
+    
+    print features['distanceToCapsule']
+    #Capsule feature ends
+    
     return features
 
   def getWeights(self, gameState, action):
@@ -225,6 +245,7 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
     weights['numFood'] = -1000
     # Favor reaching new food the most
     weights['distanceToFood'] = -5
+    weights['distanceToCapsule'] = -10 
     return weights
 
 class DefensiveReflexAgent(ReflexCaptureAgent):

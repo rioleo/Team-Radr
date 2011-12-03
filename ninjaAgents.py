@@ -287,6 +287,11 @@ class ReflexCaptureAgent(CaptureAgent):
     for tpos in self.getTeamPositions(successor):
       distances = distances + abs(tpos[0] - position[0])
     features['xRelativeToFriends'] = distances
+
+    distancesy = 0.0
+    for tpos in self.getTeamPositions(successor):
+      distancesy = distancesy + abs(tpos[1] - position[1])
+    features['yRelativeToFriends'] = distancesy
     
     enemyX = 0.0
     for epos in self.getOpponentPositions(successor):
@@ -373,8 +378,14 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
     # Always eat nearby food
     weights['numFood'] = -1000
     # Favor reaching new food the most
-    weights['distanceToFood'] = -5
+    if self.index == 1:
+      weights['distanceToFood'] = -5
+    else:
+      weights['distanceToFood'] = -5
     weights['distanceToCapsule'] = -10 
+	# Stay away from teammates
+    weights['xRelativeToFriends'] = -4
+    weights['yRelativeToFriends'] = -4    
     return weights
 
 class DefensiveReflexAgent(ReflexCaptureAgent):

@@ -22,6 +22,8 @@ def food_proximity(agent, position, food):
       if dist_to_pellet > 1:
         # print "increasing proximity_reward by: ", float(1 / (dist_to_pellet * dist_to_pellet))
         proximity_reward += float(1 / (dist_to_pellet * dist_to_pellet))
+      elif dist_to_pellet == 1:
+        proximity_reward += float(0.5)
       else: #this probably isn't necessary but just in case
         proximity_reward += float(1)
     total_pellets_eaten = float(agent.theirStartingFood - len(food))

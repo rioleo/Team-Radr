@@ -96,8 +96,9 @@ class qLearningAgent(CaptureAgent):
     for action in self.getLegalActions(state):
       #Set what the state would look like if we took this action:
       successor_state = self.getSuccessor(state, action)
-      #Evaluate how good that state would be
+      #Evaluate how good that state would be PLUS THE MOTHERFUCKING REWARD THAT HE WOULD GET FOR GOING THERE
       val = qLearn.state_value(successor_state, self)
+      val += qLearn.transition_reward(state, successor_state, self)
       if val == max_val:
         best_actions.append(action)
       elif val > max_val:

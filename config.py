@@ -42,6 +42,6 @@ AgentFactory = 'qAgents.qLearnAgents'
 
 Partners = ['Partner Names']
 
-AgentArgs = {'alpha':0.3, 'epsilon':1.0}
+AgentArgs = {'alpha':0.1, 'epsilon':0.2}
 
 NotifyList = ['member1@stanford.edu','member2@stanford.edu', 'member3@stanford.edu']

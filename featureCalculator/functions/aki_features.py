@@ -18,7 +18,7 @@ from game import Directions, Actions
 def calculate_feature_value(state, agent):  #Do not change this line    
 
     #return {}
-    
+   
     feature_values = {}
     
     myPos = agent.getPosition(state) 
@@ -30,22 +30,9 @@ def calculate_feature_value(state, agent):  #Do not change this line
     else:
       enemies = state.getRedTeamIndices()
     
-    ##Get Enemy-side Capsule feature start
-    if amIRed:
-        capsulePos = state.getBlueCapsules()
-    else:
-        capsulePos = state.getRedCapsules()
-    if capsulePos:
-        #print capsulePos[1]
-        distanceToCapsule = agent.getMazeDistance(capsulePos[0], myPos)
-        #distanceToCapsule = abs(capsulePos[0][0]-selfPos[0])+abs(capsulePos[0][1]-selfPos[1])    
-        #print distanceToCapsule
-        feature_values['distanceToCapsule'] = distanceToCapsule
-    else:
-        feature_values['distanceToCapsule'] = 0
-    ##Capsule feature ends
+   
     
-    """
+  
     ##capture / escape feature
     if agent.isPositionInTeamTerritory(state, myPos): 
         #I'm defending, so minimize the dis
@@ -58,18 +45,19 @@ def calculate_feature_value(state, agent):  #Do not change this line
                 maxBelief = 0
                 maxPos = (1,1)
                 belief = agent.beliefs[enemy]
+                #print "Beliefs", belief
                 for pos in belief:
                     if belief[pos] > maxBelief:
                         maxBelief = belief[pos]
                         maxPos = pos
-                enemyPos = pos
-            
+                enemyPos = maxPos
+            print "I think the enemy #", enemy, "is at ", enemyPos
             distanceToEnemy = agent.getMazeDistance(enemyPos, myPos)
-            if distanceToEnemy == 0:
-                distanceToEnemy = 0.1
-            feature_values['distanceToEnemyOnMySide'] = 1/distanceToEnemy
+            print "Distance to enemy defense", distanceToEnemy
+
+            feature_values['distanceToEnemyOnMySide'] = 1/float(1+distanceToEnemy)
     else: 
-        #I'm offencing, so minimize the dis
+        #I'm offending, so maximize the dis
         feature_values['distanceToEnemyOnMySide'] = 0
         
         for enemy in enemies:
@@ -83,15 +71,14 @@ def calculate_feature_value(state, agent):  #Do not change this line
                     if belief[pos] > maxBelief:
                         maxBelief = belief[pos]
                         maxPos = pos
-                enemyPos = pos
+                enemyPos = maxPos
             
             distanceToEnemy = agent.getMazeDistance(enemyPos, myPos)
-            if distanceToEnemy == 0:
-                distanceToEnemy = 0.1
-            feature_values['distanceToEnemyOnEnemySide'] = 1/distanceToEnemy
+            print "Distance to enemy offending", distanceToEnemy
+            feature_values['distanceToEnemyOnEnemySide'] = 0.1*distanceToEnemy
             
     print feature_values['distanceToEnemyOnMySide']         
-    """        
+          
             
     """            
                             #calculate maze distance to observed enemy.
@@ -113,7 +100,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
         features['numLegalActions'] = len(successor.getLegalActions(self.index)) * 3
     
     """
-    
+    #return {}
     return feature_values
         
         

@@ -11,6 +11,7 @@ def state_value(state, agent):
     total_val = 0
     feature_values = state_feature_values(state, agent)
     for f_name in feature_values.keys():
+        print "\t\t\tfeature: "+str(f_name)+" has value: "+str(feature_values[f_name])
         f_val = feature_values[f_name]
         total_val += f_val * weights[f_name]
     return total_val

@@ -84,6 +84,8 @@ class qLearningAgent(CaptureAgent):
     
   def getPolicy(self, state):
     '''Get the best action to take in this state.  If there are no legal actions, return None.'''
+    print "In getPolicy.  "
+    
     
     #Return None if there are no legal actions:
     if not len(self.getLegalActions(state)) > 0:
@@ -97,13 +99,13 @@ class qLearningAgent(CaptureAgent):
       #Set what the state would look like if we took this action:
       successor_state = self.getSuccessor(state, action)
       #Evaluate how good that state would be PLUS THE MOTHERFUCKING REWARD THAT HE WOULD GET FOR GOING THERE
-      val = qLearn.state_value(successor_state, self)
+      print "\t\t\t(Calculating state value for successor state that comes after action: "+str(action)+")"
+      successor_val = qLearn.state_value(successor_state, self)
       transition_reward = qLearn.transition_reward(state, successor_state, self)
-      val += transition_reward
-      print "In getPolicy.  "
+      val = transition_reward + successor_val
       print "\t\tIf action is: "+str(action)
-      print "\t\tthen ransition reward will be: "+str(transition_reward)
-      print "\t\tand new state value will be: "+str(qLearn.state_value(successor_state, self))
+      print "\t\tthen transition reward will be: "+str(transition_reward)
+      print "\t\tand new state value will be: "+str(successor_val)
       print "\t\tfor a total worth of: "+str(val)
       
       if val == max_val:

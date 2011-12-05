@@ -49,6 +49,13 @@ def transition_reward(state1, state2, agent):
     # print "new_food_proximity: ", new_food_proximity
     # print "old_food_proximity: ", old_food_proximity
     proximity_reward = new_food_proximity - old_food_proximity
+    
+    #
+    proximity_reward = 0
+    if position in food:
+     	proximity_reward = 1
+    
+    
     # print "proximity_reward: ", proximity_reward
     #Negative reward for our pellets eaten by the enemy
     # enemy_food_eaten_reward = len(agent.getFoodYouAreDefending(state1).asList()) - len(agent.getFoodYouAreDefending(state2).asList()) #higher val means he's eaten more :(

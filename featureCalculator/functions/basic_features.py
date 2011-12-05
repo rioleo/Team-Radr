@@ -27,13 +27,14 @@ def calculate_feature_value(state, agent):  #Do not change this line
     food = agent.getFood(state)
 
     closest_friend = float("inf")
-    
+    feature_values["closest_friend_dist"] = 0
     for friend in agent.getTeamPositions(state):
       dist = agent.getMazeDistance(position, friend)
-      if dist < closest_friend:
+      if dist < closest_friend and dist != 0:
         closest_friend = dist
-    feature_values["closest_friend_dist"] = closest_friend
-      
+    if closest_friend > 1:
+	    feature_values["closest_friend_dist"] = 1
+	          
     feature_values["ontopoffriend"] = 0
     for friend in agent.getTeamPositions(state):
       if position == friend:

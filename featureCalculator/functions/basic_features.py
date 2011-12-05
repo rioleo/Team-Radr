@@ -50,24 +50,28 @@ def calculate_feature_value(state, agent):  #Do not change this line
     
 
     #Figure out where the closest friend is  
-    closest_friend_dist = 1000
+    #closest_friend_dist = 0
     distances = []
     for friend in agent.getTeamPositions(state):
       dist = agent.getMazeDistance(position, friend)
       print "friend", friend, "at position", position, dist
-      #distances.append(dist)
+      if dist != 0:
+      	distances.append(dist)
       # print "distance to friend: ", str(dist)
       # print "my position: ", position
       # print "friend position: ", friend
-      if dist < closest_friend_dist and dist != 0:
-        closest_friend_dist = dist
+      #if dist < closest_friend_dist and dist != 0:
+        #closest_friend_dist = dist
     # print "closest friend found at "+str(closest_friend_dist)+" away."
     #Remove the one 0 from distances list that represents yourself!  important.  took forever to find out.  :p
     
-    #closest_friend_dist = min(distances)
+    if distances:
+        closest_friend_dist = min(distances)
+    else:
+        closest_friend_dist = 0
     print closest_friend_dist
-    feature_values["closest_friend_dist"] = 1/(float(closest_friend_dist+1)*float(closest_friend_dist+1))
-     
+    feature_values["closest_friend_dist"] = 1/((closest_friend_dist+1)**2)
+         
     #Create features for whether agent is in friendly or enemy territory
     if agent.isPositionInTeamTerritory(state, position):
       feature_values["in_enemy_territory"] = 0

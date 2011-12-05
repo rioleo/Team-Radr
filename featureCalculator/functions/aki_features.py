@@ -18,11 +18,11 @@ def calculate_feature_value(state, agent):  #Do not change this line
       enemies = state.getBlueTeamIndices()
     else:
       enemies = state.getRedTeamIndices()
-  
+    minDistance = float("inf")
     if agent.isPositionInTeamTerritory(state, myPos): 
         # I'm defending, so minimize the dis
         feature_values['distanceToEnemyOnEnemySide'] = 0
-        minDistance = float("inf")
+        #minDistance = float("inf")
         for enemy in enemies:
             # Compute distance to closest enemy
             enemyPos = agent.getOpponentPositions(state)[enemy/2]
@@ -39,19 +39,19 @@ def calculate_feature_value(state, agent):  #Do not change this line
             distanceToEnemy = agent.getMazeDistance(enemyPos, myPos)
             
             # Are they scared?
-            ghostState = agent.getScaredTimer(state) > 0
+            #ghostState = agent.getScaredTimer(state) > 0
             
-            #print distanceToEnemy, enemyPos, ghostState
+            print distanceToEnemy, distanceToEnemy < minDistance, minDistance, enemyPos
             if distanceToEnemy == 0:
                 distanceToEnemy = 0.1
-           	if distanceToEnemy < minDistance:
-           	    minDistance = distanceToEnemy
+            if distanceToEnemy < minDistance:
+                minDistance = distanceToEnemy
         #print "The closest enemy to me on my side is", minDistance
         feature_values['distanceToEnemyOnMySide'] = 1/float(minDistance)
     else: 
         # I'm offending, so maximize the dist to the closest - want to run away!
         feature_values['distanceToEnemyOnMySide'] = 0
-        minDistance = float("inf")
+        
         for enemy in enemies:
             # Compute distance to observed enemy
             enemyPos = agent.getOpponentPositions(state)[enemy/2]
@@ -69,7 +69,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
             distanceToEnemy = agent.getMazeDistance(enemyPos, myPos)
             # Am I scared?
             ghostState = agent.getScaredTimer(state) > 0
-            print distanceToEnemy, enemyPos, ghostState
+            #print distanceToEnemy, enemyPos, ghostState
             if distanceToEnemy == 0:
                 distanceToEnemy = 0.1
             #print distanceToEnemy

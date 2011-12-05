@@ -41,13 +41,15 @@ def calculate_feature_value(state, agent):  #Do not change this line
         within_5.append(pellet)
         if this_dist < 3:
           within_3.append(pellet)
-    feature_values["closest_pellet_dist"] = closest_pellet_dist
-    # feature_values["num_pellets_within_5_dist"] = len(within_5)
-    # feature_values["num_pellets_within_3_dist"] = len(within_3)
+    #feature_values["closest_pellet_dist"] = closest_pellet_dist
+    feature_values["closest_pellet_dist"] = 0
+
+     #feature_values["num_pellets_within_5_dist"] = len(within_5)
+     #feature_values["num_pellets_within_3_dist"] = len(within_3)
     
-    # pellet_distances = []
-    # for pellet in food.asList():
-    #   pellet_distances.append()
+    #pellet_distances = []
+    #for pellet in food.asList():
+      #pellet_distances.append()
     
 
     #Create a feature for how close you are to your nearest teammate
@@ -56,11 +58,11 @@ def calculate_feature_value(state, agent):  #Do not change this line
       dist = agent.getMazeDistance(position, friend)
       if dist < closest_friend:
         closest_friend = dist
-    # feature_values["closest_friend_dist"] = closest_friend
+      feature_values["closest_friend_dist"] = closest_friend
       
     #Create features for whether agent is in friendly or enemy territory
-    # feature_values["in_friendly_territory"] = agent.isPositionInTeamTerritory(state, position)
-    # feature_values["in_enemy_territory"] = agent.isPositionInEnemyTerritory(state, position)
+      feature_values["in_friendly_territory"] = agent.isPositionInTeamTerritory(state, position)
+      feature_values["in_enemy_territory"] = agent.isPositionInEnemyTerritory(state, position)
 
     
     return feature_values

@@ -38,6 +38,8 @@ class qLearnAgents(AgentFactory):
 class qLearningAgent(CaptureAgent):
   '''A q-learning agent.  Note that this agent has no decay (gamma) term; its future gains are not discounted.  (This could be easily changed, just not sure if that makes sense or not.)  The features learned are those specified in the *feature_function.py files in featureCalculator/functions.  The reward function for transitions (to speed up learning by essentially pruning the exploration space) is specified in qLearn.py.'''
   
+  beliefs = [None,None,None,None,None,None]
+  
   def __init__(self, index, alpha, epsilon):
     CaptureAgent.__init__(self, index)
     self.weights = util.Counter()
@@ -46,9 +48,139 @@ class qLearningAgent(CaptureAgent):
     self.firstTurnComplete = False
     self.startingFood = 0
     self.theirStartingFood = 0
+    
+    #used for estimating the enemy pos
+    self.legalPositions = None
+    self.estimate = util.Counter()
+  
+  
+  def guessEnemyPos(self, gameState):
+    #get enemy indices
+    amIRed = gameState.isOnRedTeam(self.index)
+    if amIRed:
+      enemies = gameState.getBlueTeamIndices()
+    else:
+      enemies = gameState.getRedTeamIndices()
+  
+    #initialize legalPos and beliefs for each opponent
+    if self.legalPositions is None:
+      self.legalPositions = [p for p in gameState.getWalls().asList(False) if p[1] > 0]
+      
+      for enemy in enemies:
+        enemyInitPos = gameState.getInitialAgentPosition(enemy)
+        qLearningAgent.beliefs[enemy] = util.Counter()
+        for p in self.legalPositions: 
+          #sometimes enemy goes first, so enemy might not be in the initial state already.
+          #So I'm allowing some variability here. (only the grid nearby init state gets prob)
+          if abs(p[0] - enemyInitPos[0]) + abs(p[1] - enemyInitPos[1]) < 3:
+            qLearningAgent.beliefs[enemy][p] = 1.0  
+          else:
+            qLearningAgent.beliefs[enemy][p] = 0  
+        qLearningAgent.beliefs[enemy].normalize()
+
+   
+    #we are getting P(enemy being this pos | noisyDis) here
+    for enemy in enemies:
+      enemyInitPos = gameState.getInitialAgentPosition(enemy)
+      isGone = True  #if isGone stays True, means enemy is eaten, so start from init. 
+      for p in self.legalPositions:
+        if qLearningAgent.beliefs[enemy][p] > 0:
+          isGone = False
+          break
+      
+      observedEnemyPos = self.getOpponentPositions(gameState)[enemy/2]
+      if observedEnemyPos is not None:   # enemy is near you! Don't estimate, just look at it. 
+        for p in self.legalPositions: 
+          if p == observedEnemyPos:
+            qLearningAgent.beliefs[enemy][p] = 1             
+          else:
+            qLearningAgent.beliefs[enemy][p] = 0 
+      elif isGone == True: #so this enemy is eaten. Let's reset the belief. 
+        initPos = gameState.getInitialAgentPosition(enemy)
+        qLearningAgent.beliefs[enemy][initPos] = 1.0
+        for p in self.legalPositions: 
+          if abs(p[0] - enemyInitPos[0]) + abs(p[1] - enemyInitPos[1]) < 3:
+            qLearningAgent.beliefs[enemy][p] = 1.0  
+          else:
+            qLearningAgent.beliefs[enemy][p] = 0  
+        qLearningAgent.beliefs[enemy].normalize()
+      else:  # this is the normal case. 
+        noisyDis = gameState.getAgentDistance(enemy)
+        selfPos = self.getPosition(gameState)
+      
+        self.estimate[enemy] = util.Counter()
+        
+        for pos in self.legalPositions:
+          trueDis = abs(pos[0] - selfPos[0]) + abs(pos[1] - selfPos[1])
+          self.estimate[enemy][pos] = gameState.getDistanceProb(trueDis, noisyDis)
+
+        self.estimate[enemy].normalize()
+ 
+        for pos in self.legalPositions:
+          qLearningAgent.beliefs[enemy][pos] *= self.estimate[enemy][pos]
+          
+        qLearningAgent.beliefs[enemy].normalize() 
+    
+        #if enemy is staying the place forever, code until here is enough.
+        # above corresponds to the part1 of assignment2. below is part2.
+        #Now, update the beliefs for next step based on the movement distribution. 
+        newBeliefs = util.Counter()
+        for p in self.legalPositions: 
+          newBeliefs[p] = 0.0 
+      
+        for p in self.legalPositions:
+          possibleLegalActions = ["East", "North", "West", "South", "Stop"]
+        
+          if gameState.hasWall(p[0]+1, p[1]):
+            possibleLegalActions.remove("East")
+          if gameState.hasWall(p[0], p[1]+1):
+            possibleLegalActions.remove("North")
+          if gameState.hasWall(p[0]-1, p[1]):
+            possibleLegalActions.remove("West")
+          if gameState.hasWall(p[0], p[1]-1):
+            possibleLegalActions.remove("South")
+        
+          prob = 1.0 / len(possibleLegalActions) 
+        
+          newPosDist = util.Counter()
+
+          if not gameState.hasWall(p[0]+1, p[1]):
+            newPosDist[(p[0]+1, p[1])] = prob
+          if not gameState.hasWall(p[0], p[1]+1):
+            newPosDist[(p[0], p[1]+1)] = prob
+          if not gameState.hasWall(p[0]-1, p[1]):
+            newPosDist[(p[0]-1, p[1])] = prob
+          if not gameState.hasWall(p[0], p[1]-1):
+            newPosDist[(p[0], p[1]-1)] = prob
+            
+          newPosDist[(p[0], p[1])] = prob #agent might be stopping there. 
+
+          #print newPosDist
+        
+          for newPos in newPosDist:
+            newBeliefs[newPos] += qLearningAgent.beliefs[enemy][p] * newPosDist[newPos] 
+        
+        newBeliefs.normalize()
+        qLearningAgent.beliefs[enemy] = newBeliefs  
+      
+        """
+        if amIRed and enemy == 1:
+          print ""
+          print "enemy number ", enemy, " my index ", self.index
+          for pos in qLearningAgent.beliefs[enemy]:
+            if qLearningAgent.beliefs[enemy][pos] > 0:
+              print pos, ": ", qLearningAgent.beliefs[enemy][pos]
+        """ 
+         
+    #comment out this if you don't want to show the coloring display for each enemy.       
+    self.displayDistributionsOverPositions(qLearningAgent.beliefs)
+  
+
   
   def chooseAction(self, gameState):
     '''The exposed interface for this agent for picking an action.'''
+
+    self.guessEnemyPos(gameState)
 
     #Store food info at the beginning of the game:
     if not self.firstTurnComplete:

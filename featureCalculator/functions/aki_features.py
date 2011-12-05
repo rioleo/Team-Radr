@@ -16,9 +16,30 @@ from game import Directions, Actions
 
 
 def calculate_feature_value(state, agent):  #Do not change this line    
-    #For debugging:
+    return {}
+    #feature_values = {}
+    
+    """
+    ##Capsule feature start
+    amIRed = successor.isOnRedTeam(self.index)
+    if amIRed:
+        capsulePos = successor.getBlueCapsules()
+    else:
+        capsulePos = successor.getRedCapsules()
+    if capsulePos:
+        selfPos = self.getPosition(successor)
+        #print capsulePos[1]
+        distanceToCapsule = self.getMazeDistance(capsulePos[0], selfPos)
+        #distanceToCapsule = abs(capsulePos[0][0]-selfPos[0])+abs(capsulePos[0][1]-selfPos[1])    
+        #print distanceToCapsule
+        features['distanceToCapsule'] = distanceToCapsule
+    else:
+        features['distanceToCapsule'] = 0
+    #print features['distanceToCapsule']
+    ##Capsule feature ends
+    """
         
-    return feature_values
+    #return feature_values
         
         
     

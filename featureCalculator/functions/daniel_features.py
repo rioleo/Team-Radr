@@ -17,7 +17,8 @@ from game import Directions, Actions
 
 def calculate_feature_value(state, agent):  #Do not change this line    
     #For debugging:
-        
+    feature_values ={}
+    
     return feature_values
         
         

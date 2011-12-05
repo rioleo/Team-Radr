@@ -79,7 +79,15 @@ def calculate_feature_value(state, agent):  #Do not change this line
         feature_values['distanceToEnemyOnEnemySide'] = minDistance
             
     #print feature_values['distanceToEnemyOnMySide']         
-       
+    
+    if agent.previousPos == agent.previousPreviousPos and agent.previousPos == myPos:
+        feature_values['stuck'] = 0 #I'm stuck
+    else:
+        feature_values['stuck'] = 1 #normal case
+    
+    agent.previousPreviousPos = agent.previousPos
+    agent.previousPos = myPos
+    
     return feature_values
         
         

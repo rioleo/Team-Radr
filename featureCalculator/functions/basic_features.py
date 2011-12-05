@@ -45,9 +45,9 @@ def calculate_feature_value(state, agent):  #Do not change this line
     # feature_values["num_pellets_within_5_dist"] = len(within_5)
     # feature_values["num_pellets_within_3_dist"] = len(within_3)
     
-    pellet_distances = []
-    for pellet in food.asList():
-      pellet_distances.append()
+    # pellet_distances = []
+    # for pellet in food.asList():
+    #   pellet_distances.append()
     
 
     #Create a feature for how close you are to your nearest teammate

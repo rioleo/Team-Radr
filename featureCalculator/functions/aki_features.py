@@ -19,9 +19,12 @@ def calculate_feature_value(state, agent):  #Do not change this line
     else:
       enemies = state.getRedTeamIndices()
     minDistance = float("inf")
+    
+    
     if agent.isPositionInTeamTerritory(state, myPos): 
         # I'm defending, so minimize the dis
         feature_values['distanceToEnemyOnEnemySide'] = 0
+        feature_values['ateGuy'] = 0
         #minDistance = float("inf")
         for enemy in enemies:
             # Compute distance to closest enemy
@@ -42,16 +45,19 @@ def calculate_feature_value(state, agent):  #Do not change this line
             #ghostState = agent.getScaredTimer(state) > 0
             
             print distanceToEnemy, distanceToEnemy < minDistance, minDistance, enemyPos
+            #if distanceToEnemy == 1:
+            	#feature_values['ateGuy'] = 1000
             if distanceToEnemy == 0:
                 distanceToEnemy = 0.1
+                #
             if distanceToEnemy < minDistance:
                 minDistance = distanceToEnemy
         #print "The closest enemy to me on my side is", minDistance
-        feature_values['distanceToEnemyOnMySide'] = 1/float(minDistance)
+        feature_values['distanceToEnemyOnMySide'] = 1/minDistance
     else: 
         # I'm offending, so maximize the dist to the closest - want to run away!
         feature_values['distanceToEnemyOnMySide'] = 0
-        
+        feature_values['ateGuy'] = 0
         for enemy in enemies:
             # Compute distance to observed enemy
             enemyPos = agent.getOpponentPositions(state)[enemy/2]
@@ -70,15 +76,17 @@ def calculate_feature_value(state, agent):  #Do not change this line
             # Am I scared?
             ghostState = agent.getScaredTimer(state) > 0
             #print distanceToEnemy, enemyPos, ghostState
+            #if distanceToEnemy == 1:
+               # feature_values['ateGuy'] = 100*(4-distanceToEnemy)
             if distanceToEnemy == 0:
+
                 distanceToEnemy = 0.1
             #print distanceToEnemy
             if distanceToEnemy < minDistance:
             	minDistance = distanceToEnemy
-        #print "The closest enemy to me on the other side is", minDistance
+        print "The closest enemy to me on the other side is", minDistance
         feature_values['distanceToEnemyOnEnemySide'] = minDistance
-            
-    #print feature_values['distanceToEnemyOnMySide']         
+                   
     
     if agent.previousPos == agent.previousPreviousPos and agent.previousPos == myPos:
         feature_values['stuck'] = 0 #I'm stuck

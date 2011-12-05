@@ -16,6 +16,8 @@ import game
 from util import nearestPoint
 import regularMutation
 import qLearn
+from database import db #you will have troubles if pymongo isn't installed!  :p
+import sys
 
 #############
 # FACTORIES #
@@ -40,16 +42,41 @@ class qLearningAgent(CaptureAgent):
   
   def __init__(self, index, alpha, epsilon):
     CaptureAgent.__init__(self, index)
-    self.weights = util.Counter()
+    # self.weights = util.Counter()
     self.alpha = alpha #learning rate--higher means learn in larger steps
     self.epsilon = epsilon #exploration rate--higher means explore more
     self.firstTurnComplete = False
     self.startingFood = 0
     self.theirStartingFood = 0
+    
+  def load_weights_from_db(self):
+    collection = db.getCollection("pacman_weights") #Change this name to something different if you want to have your own persistence for personal debugging... but DO NOT COMMIT THE CHANGE OF THIS LINE!
+    loaded = collection.find_one() #there is only one object in the database
+    if loaded is None:
+      print "Couldn't load the weights from the database.  Going to go ahead and assume that the db was wiped, and set some fresh 0 weights in there."
+      weights = {}
+      collection.save({"the_weights": weights})
+      loaded_weights = collection.find_one()["the_weights"]
+    else:
+      loaded_weights = loaded["the_weights"]
+    db.kthxbye(collection)
+    #Because MongoDB can't store the Counter, but rather stores it as a dict, we re-create a counter (so we get nice 0 default values) from the dict by iteratively populating.  Kinda slow, but meh.
+    weights_counter = util.Counter()
+    for key in loaded_weights:
+      weights_counter[key] = loaded_weights[key]
+    return weights_counter
+      
+  def save_weights_to_db(self):
+    collection = db.getCollection("pacman_weights")
+    collection.update({}, {"$set": {"the_weights": self.weights}})
+    db.kthxbye(collection)
   
   def chooseAction(self, gameState):
     '''The exposed interface for this agent for picking an action.'''
-
+    
+    #Re-load the learned weights that were saved.      
+    self.weights = self.load_weights_from_db()
+      
     #Store food info at the beginning of the game:
     if not self.firstTurnComplete:
       self.firstTurnComplete = True
@@ -57,7 +84,7 @@ class qLearningAgent(CaptureAgent):
       self.theirStartingFood = len(self.getFood(gameState).asList())
     else:
       #Update learned weights based on latest transition (after first turn)
-      self.update(self.previous_game_state, gameState)  
+      self.update(self.previous_game_state, gameState)
       
     #Pick the best action to take
     actionChosen = self.pickAction(gameState)
@@ -99,7 +126,7 @@ class qLearningAgent(CaptureAgent):
       #Set what the state would look like if we took this action:
       successor_state = self.getSuccessor(state, action)
       #Evaluate how good that state would be PLUS THE MOTHERFUCKING REWARD THAT HE WOULD GET FOR GOING THERE
-      print "\t\t\t(Calculating state value for successor state that comes after action: "+str(action)+")"
+      print "\n\n\t\t(Calculating state value for successor state that comes after action: "+str(action)+")"
       successor_val = qLearn.state_value(successor_state, self)
       transition_reward = qLearn.transition_reward(state, successor_state, self)
       val = transition_reward + successor_val
@@ -151,5 +178,9 @@ class qLearningAgent(CaptureAgent):
       f_val = feature_values[f_name]
       f_val_old = feature_values_old[f_name]
       f_val_delta = f_val - f_val_old
-      self.weights[f_name] += self.alpha * correction * f_val_delta
+      #Theoretically correct:
+      self.weights[f_name] += self.alpha * correction * f_val
+      #Desperate hack, which at least sets the signs correctly on the feature weights:
+      # self.weights[f_name] += self.alpha * correction * f_val_delta
+    self.save_weights_to_db()
     

@@ -5,7 +5,8 @@ import sys
 
 def state_value(state, agent):
     '''Return the value of a state.  This is the feature values for this state * the learned weights for those values, where * is the dot product operator.'''
-    print "Evaluating state value.  Feature weights are: ", str(agent.weights)
+    print "\t\t\tEvaluating state value.  Feature weights are: "
+    print "\t\t\t"+ str(agent.weights)
     weights = agent.weights
     total_val = 0
     feature_values = state_feature_values(state, agent)
@@ -44,10 +45,10 @@ def transition_reward(state1, state2, agent):
     #Reward for being near pellets.  The reward is more the closer to the pellet you are.  To keep from basking in being near without ever eating it, Pacman also gets a reward for pellets he's eaten.  He can have his cake and eat it too!  :D
     new_food_proximity = food_proximity(agent, position, food)
     old_food_proximity = food_proximity(agent, old_position, old_food)
-    print "new_food_proximity: ", new_food_proximity
-    print "old_food_proximity: ", old_food_proximity
+    # print "new_food_proximity: ", new_food_proximity
+    # print "old_food_proximity: ", old_food_proximity
     proximity_reward = new_food_proximity - old_food_proximity
-    print "proximity_reward: ", proximity_reward
+    # print "proximity_reward: ", proximity_reward
     #Negative reward for our pellets eaten by the enemy
     # enemy_food_eaten_reward = len(agent.getFoodYouAreDefending(state1).asList()) - len(agent.getFoodYouAreDefending(state2).asList()) #higher val means he's eaten more :(
 
@@ -57,7 +58,7 @@ def transition_reward(state1, state2, agent):
     total_reward += proximity_reward * 1
     # total_reward += enemy_food_eaten_reward * -1
     #Return the total reward
-    print "transition_reward: ", total_reward
+    # print "transition_reward: ", total_reward
     return total_reward
 
 def state_feature_values(state, agent):

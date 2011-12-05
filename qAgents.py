@@ -98,7 +98,14 @@ class qLearningAgent(CaptureAgent):
       successor_state = self.getSuccessor(state, action)
       #Evaluate how good that state would be PLUS THE MOTHERFUCKING REWARD THAT HE WOULD GET FOR GOING THERE
       val = qLearn.state_value(successor_state, self)
-      val += qLearn.transition_reward(state, successor_state, self)
+      transition_reward = qLearn.transition_reward(state, successor_state, self)
+      val += transition_reward
+      print "In getPolicy.  "
+      print "\t\tIf action is: "+str(action)
+      print "\t\tthen ransition reward will be: "+str(transition_reward)
+      print "\t\tand new state value will be: "+str(qLearn.state_value(successor_state, self))
+      print "\t\tfor a total worth of: "+str(val)
+      
       if val == max_val:
         best_actions.append(action)
       elif val > max_val:
@@ -128,14 +135,19 @@ class qLearningAgent(CaptureAgent):
     current_state_value = qLearn.state_value(state, self)
     previous_state_value = qLearn.state_value(self.previous_game_state, self)
     reward = qLearn.transition_reward(self.previous_game_state, state, self)
-    correction = reward + (current_state_value - previous_state_value)
+    correction = (reward + current_state_value) - previous_state_value
     print "current state value: \t", current_state_value
     print "previous state value: \t", previous_state_value
     print "correction: \t\t", correction
     #Calculate the feature values for the current state:
     feature_values = qLearn.state_feature_values(state, self)
+    #What if we calculated for previous state and took the difference?
+    feature_values_old = qLearn.state_feature_values(self.previous_game_state, self)
+    
     #Update learned weights:
     for f_name in feature_values.keys():
       f_val = feature_values[f_name]
-      self.weights[f_name] += self.alpha * correction * f_val
+      f_val_old = feature_values_old[f_name]
+      f_val_delta = f_val - f_val_old
+      self.weights[f_name] += self.alpha * correction * f_val_delta
     

@@ -16,8 +16,6 @@ from game import Directions, Actions
 
 
 def calculate_feature_value(state, agent):  #Do not change this line    
-    #For debugging:
-    # return {}
     
     #Create dict to be returned
     feature_values = {}
@@ -50,7 +48,22 @@ def calculate_feature_value(state, agent):  #Do not change this line
       pellet_distances.append(agent.getMazeDistance(position, pellet))
     # feature_values["closest_pellet_dist"] = min(pellet_distances)
     
+
       
+    closest_friend = float("inf")
+    feature_values["closest_friend_dist"] = 0
+    for friend in agent.getTeamPositions(state):
+      dist = agent.getMazeDistance(position, friend)
+      if dist < closest_friend and dist != 0:
+        closest_friend = dist
+    if closest_friend > 1:
+	    feature_values["closest_friend_dist"] = 1
+	          
+    feature_values["ontopoffriend"] = 0
+    for friend in agent.getTeamPositions(state):
+      if position == friend:
+    	feature_values["ontopoffriend"] = 1
+     
     #Create features for whether agent is in friendly or enemy territory
     if agent.isPositionInTeamTerritory(state, position):
       feature_values["in_enemy_territory"] = 0
@@ -58,9 +71,8 @@ def calculate_feature_value(state, agent):  #Do not change this line
     else:
       feature_values["in_enemy_territory"] = 1
       feature_values["in_friendly_territory"] = 0
-      
 
-    
+
     return feature_values
         
         

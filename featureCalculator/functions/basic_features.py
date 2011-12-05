@@ -16,8 +16,6 @@ from game import Directions, Actions
 
 
 def calculate_feature_value(state, agent):  #Do not change this line    
-    #For debugging:
-    # return {}
     
     #Create dict to be returned
     feature_values = {}
@@ -41,30 +39,40 @@ def calculate_feature_value(state, agent):  #Do not change this line
         within_5.append(pellet)
         if this_dist < 3:
           within_3.append(pellet)
-    #feature_values["closest_pellet_dist"] = closest_pellet_dist
-    feature_values["closest_pellet_dist"] = 0
-
-     #feature_values["num_pellets_within_5_dist"] = len(within_5)
-     #feature_values["num_pellets_within_3_dist"] = len(within_3)
+    # feature_values["closest_pellet_dist"] = closest_pellet_dist
+    # feature_values["num_pellets_within_5_dist"] = len(within_5)
+    # feature_values["num_pellets_within_3_dist"] = len(within_3)
     
-    #pellet_distances = []
-    #for pellet in food.asList():
-      #pellet_distances.append()
+    pellet_distances = []
+    for pellet in food.asList():
+      pellet_distances.append(agent.getMazeDistance(position, pellet))
+    # feature_values["closest_pellet_dist"] = min(pellet_distances)
     
 
-    #Create a feature for how close you are to your nearest teammate
+      
     closest_friend = float("inf")
+    feature_values["closest_friend_dist"] = 0
     for friend in agent.getTeamPositions(state):
       dist = agent.getMazeDistance(position, friend)
-      if dist < closest_friend:
+      if dist < closest_friend and dist != 0:
         closest_friend = dist
-      feature_values["closest_friend_dist"] = closest_friend
-      
+    if closest_friend > 1:
+	    feature_values["closest_friend_dist"] = 1
+	          
+    feature_values["ontopoffriend"] = 0
+    for friend in agent.getTeamPositions(state):
+      if position == friend:
+    	feature_values["ontopoffriend"] = 1
+     
     #Create features for whether agent is in friendly or enemy territory
-      feature_values["in_friendly_territory"] = agent.isPositionInTeamTerritory(state, position)
-      feature_values["in_enemy_territory"] = agent.isPositionInEnemyTerritory(state, position)
+    if agent.isPositionInTeamTerritory(state, position):
+      feature_values["in_enemy_territory"] = 0
+      feature_values["in_friendly_territory"] = 1
+    else:
+      feature_values["in_enemy_territory"] = 1
+      feature_values["in_friendly_territory"] = 0
 
-    
+
     return feature_values
         
         

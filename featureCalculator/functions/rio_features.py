@@ -11,24 +11,42 @@ Note: names for features must be unique.  This could be fixed, but it's not wort
 
 To get started writing a new feature function, copy this file, rename it, and make sure it's in the folder "featureCalculator/".  Register it as above, and edit calculate_feature_vector() as desired!
 '''
-
+import operator
 from game import Directions, Actions
 
 
 def calculate_feature_value(state, agent):  #Do not change this line    
-    #For debugging:
-    #feature_values = {}
-    
+	
+	feature_values = {}
     #Set up some useful variables
-    position = agent.getPosition(state)
-    enemies = agent.getOpponentPositions(state) #None for agents w dist > 5
-    walls = state.getWalls()
-    food = agent.getFood(state)
+	position = agent.getPosition(state)
+	enemies = agent.getOpponentPositions(state) #None for agents w dist > 5
+	walls = state.getWalls()
+	food = agent.getFood(state)
     
-    #foodIamdefending = agent.theirFood()
-    #print foodIamdefending
-    return {}
-    #return feature_values
+    ## Defend high density food
+	foodIamdefending = agent.getFoodYouAreDefending(state).asList()
+	remaining = len(foodIamdefending)
+	originalcount = agent.startingFood
+	dotmap = {}
+	for i in foodIamdefending:
+		for j in foodIamdefending:
+			dist = agent.getMazeDistance(i,j)
+			if dist == 1:
+				if j in dotmap:	#print i,j
+					dotmap[j] += 1	
+				else:
+					dotmap[j] = 1
+	
+	highDensity = position
+	
+	if dotmap != {}:
+		# The point where highest density
+		highDensity = max(dotmap.iteritems(), key=operator.itemgetter(1))[0]
+
+	feature_values["distanceToHighDensity"] = (1 if agent.getMazeDistance(highDensity, position) < 10 else 0)
+
+	return feature_values
         
         
     

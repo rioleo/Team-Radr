@@ -16,6 +16,7 @@ from game import Directions, Actions
 
 # state is same as successor, no action involved
 def calculate_feature_value(state, agent):  #Do not change this line    
+
     #return {}
     
     feature_values = {}
@@ -112,7 +113,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
         features['numLegalActions'] = len(successor.getLegalActions(self.index)) * 3
     
     """
-        
+    
     return feature_values
         
         

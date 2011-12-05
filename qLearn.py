@@ -50,10 +50,10 @@ def transition_reward(state1, state2, agent):
     proximity_reward = new_food_proximity - old_food_proximity
     
     #
-    #proximity_reward = 0
-    #if food in position:
-    # 	proximity_reward = 1
-    #
+    proximity_reward = 0
+    if position in food:
+     	proximity_reward = 1
+    
     
     # print "proximity_reward: ", proximity_reward
     #Negative reward for our pellets eaten by the enemy

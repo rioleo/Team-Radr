@@ -7,6 +7,7 @@ from pymongo import Connection
 def getCollection(collectionName, readOnly=False):
     mongo_uri = "mongodb://two_twenty_one:pacmanparty@staff.mongohq.com:10001/play" #WARNING! plaintext password
     c = Connection(mongo_uri)
+    c = Connection()
     collection = c.play[collectionName]
     return collection
     

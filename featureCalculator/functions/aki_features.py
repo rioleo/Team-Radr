@@ -40,9 +40,9 @@ def calculate_feature_value(state, agent):  #Do not change this line
         distanceToCapsule = agent.getMazeDistance(capsulePos[0], myPos)
         #distanceToCapsule = abs(capsulePos[0][0]-selfPos[0])+abs(capsulePos[0][1]-selfPos[1])    
         #print distanceToCapsule
-        feature_values['distanceToCapsule'] = distanceToCapsule
+        # feature_values['distanceToCapsule'] = distanceToCapsule
     else:
-        feature_values['distanceToCapsule'] = 0
+        # feature_values['distanceToCapsule'] = 0
     ##Capsule feature ends
     
     """

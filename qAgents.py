@@ -50,6 +50,7 @@ class qLearningAgent(CaptureAgent):
     self.firstTurnComplete = False
     self.startingFood = 0
     self.theirStartingFood = 0
+    self.debug = False
     
     #used for estimating the enemy pos
     self.legalPositions = None
@@ -212,6 +213,7 @@ class qLearningAgent(CaptureAgent):
       self.firstTurnComplete = True
       self.startingFood = len(self.getFoodYouAreDefending(gameState).asList())
       self.theirStartingFood = len(self.getFood(gameState).asList())
+      self.startingFoodToEat = len(self.getFood(gameState).asList())
     else:
       #Update learned weights based on latest transition (after first turn)
       self.update(self.previous_game_state, gameState)
@@ -223,7 +225,8 @@ class qLearningAgent(CaptureAgent):
     #decided so we can learn in the future whether it was a good call
     self.previous_game_state = gameState
     
-    print "action chosen: ", actionChosen
+    if self.debug: 
+      print "action chosen: ", actionChosen
     #Return the action chosen
     return actionChosen
     
@@ -241,8 +244,10 @@ class qLearningAgent(CaptureAgent):
     
   def getPolicy(self, state):
     '''Get the best action to take in this state.  If there are no legal actions, return None.'''
-    print "In getPolicy.  "
     
+    if self.debug:
+      print "In getPolicy.  "
+      
     
     #Return None if there are no legal actions:
     if not len(self.getLegalActions(state)) > 0:
@@ -255,16 +260,17 @@ class qLearningAgent(CaptureAgent):
     for action in self.getLegalActions(state):
       #Set what the state would look like if we took this action:
       successor_state = self.getSuccessor(state, action)
-      #Evaluate how good that state would be PLUS THE MOTHERFUCKING REWARD THAT HE WOULD GET FOR GOING THERE
-      print "\n\n\t\t(Calculating state value for successor state that comes after action: "+str(action)+")"
+      #Evaluate how good that state would be 
+      if self.debug:
+        print "\n\n\t\t(Calculating state value for successor state that comes after action: "+str(action)+")"
       successor_val = qLearn.state_value(successor_state, self)
       transition_reward = qLearn.transition_reward(state, successor_state, self)
-      val = transition_reward + successor_val
-      print "\t\tIf action is: "+str(action)
-      print "\t\tthen transition reward will be: "+str(transition_reward)
-      print "\t\tand new state value will be: "+str(successor_val)
-      print "\t\tfor a total worth of: "+str(val)
-      
+      val = transition_reward + successor_val #IS THIS WARRANTED?  OR SHOULD IT JUST BE THE TRANSITION_REWARD?
+      if self.debug:
+        print "\t\tIf action is: "+str(action)
+        print "\t\tthen transition reward will be: "+str(transition_reward)
+        print "\t\tand new state value will be: "+str(successor_val)
+        print "\t\tfor a total worth of: "+str(val)
       if val == max_val:
         best_actions.append(action)
       elif val > max_val:
@@ -273,6 +279,9 @@ class qLearningAgent(CaptureAgent):
         
     #Choose a random action from the best actions
     chosen_action = random.choice(best_actions)
+    #Store the max value so we don't have to recompute it later:
+    self.previous_state_val_maxed_over_actions = max_val
+    
     return chosen_action
     
   def pickAction(self, state):
@@ -292,25 +301,43 @@ class qLearningAgent(CaptureAgent):
     
     #Calculate the correction term:
     current_state_value = qLearn.state_value(state, self)
-    previous_state_value = qLearn.state_value(self.previous_game_state, self)
+    # previous_state_value = qLearn.state_value(self.previous_game_state, self)
+    # if self.previous_state_val_maxed_over_actions:
+    #   current_state_expected_value = self.previous_state_val_maxed_over_actions
+    # else:
+    #   print "(No cached previous_state_val_maxed_over_actions exists, because this is the first turn... calculating fresh.)"
+    #   current_state_expected_value = qLearn.state_value(self.getSuccessor(self.previous_game_state, self.getPolicy(self.previous_game_state)), self)
+    
+    current_state_expected_value = self.previous_state_val_maxed_over_actions
+    
     reward = qLearn.transition_reward(self.previous_game_state, state, self)
-    correction = (reward + current_state_value) - previous_state_value
-    print "current state value: \t", current_state_value
-    print "previous state value: \t", previous_state_value
-    print "correction: \t\t", correction
+    correction = (reward + current_state_value) - current_state_expected_value
+    
+    if self.index == 1:
+      print "reward:\t", reward
+      print "current_state_value: \t", current_state_value
+      print "current_state_expected_value: \t", current_state_expected_value
+      print "correction: \t\t", correction
+      
     #Calculate the feature values for the current state:
     feature_values = qLearn.state_feature_values(state, self)
     #What if we calculated for previous state and took the difference?
     feature_values_old = qLearn.state_feature_values(self.previous_game_state, self)
     
     #Update learned weights:
-    for f_name in feature_values.keys():
-      f_val = feature_values[f_name]
+    # for f_name in feature_values.keys():
+    #   f_val = feature_values[f_name]
+    #   f_val_old = feature_values_old[f_name]
+    #   f_val_delta = f_val - f_val_old
+    #   #Theoretically correct: --note, not really. see below.
+    #   self.weights[f_name] += self.alpha * correction * f_val
+    #   #Desperate hack, which at least sets the signs correctly on the feature weights:
+    #   # self.weights[f_name] += self.alpha * correction * f_val_delta
+      
+    for f_name in feature_values_old.keys():
       f_val_old = feature_values_old[f_name]
-      f_val_delta = f_val - f_val_old
-      #Theoretically correct:
-      self.weights[f_name] += self.alpha * correction * f_val
-      #Desperate hack, which at least sets the signs correctly on the feature weights:
-      # self.weights[f_name] += self.alpha * correction * f_val_delta
+      #Actually correct:
+      self.weights[f_name] += self.alpha * correction * f_val_old
+      
     self.save_weights_to_db()
     

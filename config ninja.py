@@ -35,13 +35,13 @@ Settings:
 """
 
 # Alpha-Numeric only
-TeamName = 'RADD'
+TeamName = 'ninjaAgents'
 
 # Filename.FactoryClassName (CASE-sensitive)
-AgentFactory = 'qAgents.qLearnAgents'
+AgentFactory = 'ninjaAgents.BaselineAgents'
 
 Partners = ['Partner Names']
 
-AgentArgs = {'alpha':0.05, 'epsilon':0.05}
+AgentArgs = {'first':'offense', 'second':'defense', 'third':'offense'}
 
 NotifyList = ['member1@stanford.edu','member2@stanford.edu', 'member3@stanford.edu']

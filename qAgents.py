@@ -51,7 +51,7 @@ class qLearningAgent(CaptureAgent):
     self.startingFood = 0
     self.theirStartingFood = 0
     self.debug = True
-    self.hardcodedWeights = {'closest_friend_dist':-0.5}
+    self.hardcodedWeights = {'closest_friend_dist':-0.5, 'distanceToEnemyOnEnemySide':1, 'distanceToEnemyOnMySide':1}
     
     #used for estimating the enemy pos
     self.legalPositions = None

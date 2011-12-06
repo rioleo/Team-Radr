@@ -41,13 +41,10 @@ def calculate_feature_value(state, agent):  #Do not change this line
             # Are they scared?
             #ghostState = agent.getScaredTimer(state) > 0
             
-            print distanceToEnemy, distanceToEnemy < minDistance, minDistance, enemyPos
-            if distanceToEnemy == 0:
-                distanceToEnemy = 0.1
             if distanceToEnemy < minDistance:
                 minDistance = distanceToEnemy
         #print "The closest enemy to me on my side is", minDistance
-        feature_values['distanceToEnemyOnMySide'] = 1/float(minDistance)
+        feature_values['distanceToEnemyOnMySide'] = 1/float(minDistance+1)
     else: 
         # I'm offending, so maximize the dist to the closest - want to run away!
         feature_values['distanceToEnemyOnMySide'] = 0
@@ -69,9 +66,6 @@ def calculate_feature_value(state, agent):  #Do not change this line
             distanceToEnemy = agent.getMazeDistance(enemyPos, myPos)
             # Am I scared?
             ghostState = agent.getScaredTimer(state) > 0
-            #print distanceToEnemy, enemyPos, ghostState
-            if distanceToEnemy == 0:
-                distanceToEnemy = 0.1
             #print distanceToEnemy
             if distanceToEnemy < minDistance:
             	minDistance = distanceToEnemy
@@ -80,13 +74,13 @@ def calculate_feature_value(state, agent):  #Do not change this line
             
     #print feature_values['distanceToEnemyOnMySide']         
     
-    if agent.previousPos == agent.previousPreviousPos and agent.previousPos == myPos:
-        feature_values['stuck'] = 0 #I'm stuck
-    else:
-        feature_values['stuck'] = 1 #normal case
+    # if agent.previousPos == agent.previousPreviousPos and agent.previousPos == myPos:
+    #     feature_values['stuck'] = 0 #I'm stuck
+    # else:
+    #     feature_values['stuck'] = 1 #normal case
     
-    agent.previousPreviousPos = agent.previousPos
-    agent.previousPos = myPos
+    # agent.previousPreviousPos = agent.previousPos
+    # agent.previousPos = myPos
     
     return feature_values
         

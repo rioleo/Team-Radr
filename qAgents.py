@@ -16,7 +16,7 @@ import game
 from util import nearestPoint
 import regularMutation
 import qLearn
-from database import db #you will have troubles if pymongo isn't installed!  :p
+#from database import db #you will have troubles if pymongo isn't installed!  :p
 import sys
 
 #############
@@ -52,6 +52,8 @@ class qLearningAgent(CaptureAgent):
     self.theirStartingFood = 0
     self.debug = False
     self.hardcodedWeights = {'closest_friend_dist':-2, 'distanceToEnemyOnEnemySide':1, 'distanceToEnemyOnMySide':1, 'close_to_enemies_in_enemy_territory':-0.5, 'close_to_enemies_in_friendly_territory': 0.5, 'numInvaders': -100}
+    self.lastAction = ""
+
     
     #used for estimating the enemy pos
     self.legalPositions = None
@@ -228,7 +230,12 @@ class qLearningAgent(CaptureAgent):
       
     #Pick the best action to take
     actionChosen = self.pickAction(gameState)
-    
+    #print "\nAction\n", actionChosen
+    if actionChosen == self.lastAction and self.lastAction == "Stop":
+    	#print "\nhere\n"
+    	actionChosen = self.getNonStopPolicy(gameState)
+    	#print "\n\nNew Action\n", actionChosen
+    self.lastAction = actionChosen
     #Before we return our decision, record where we are now and what we
     #decided so we can learn in the future whether it was a good call
     self.previous_game_state = gameState
@@ -249,6 +256,45 @@ class qLearningAgent(CaptureAgent):
       return successor.generateSuccessor(self.index, action)
     else:
       return successor
+    
+  def getNonStopPolicy(self, state):
+    '''Get the best action to take in this state.  If there are no legal actions, return None.'''
+    
+    if self.debug:
+      print "In getPolicy.  "
+      
+    
+    #Return None if there are no legal actions:
+    if not len(self.getLegalActions(state)) > 0:
+      return None
+    
+    #Calculate the best action(s)
+    chosen_action = None
+    max_val = None
+    best_actions = []
+    for action in self.getLegalActions(state):
+      if action != "Stop":
+        #Set what the state would look like if we took this action:
+        successor_state = self.getSuccessor(state, action)
+        #Evaluate how good that state would be 
+	     
+        successor_val = qLearn.state_value(successor_state, self)
+        transition_reward = qLearn.transition_reward(state, successor_state, self)
+        val = transition_reward + successor_val #IS THIS WARRANTED?  OR SHOULD IT JUST BE THE TRANSITION_REWARD?
+        if val == max_val:
+          best_actions.append(action)
+        elif val > max_val:
+          best_actions = [action]
+          max_val = val
+	        
+    #Choose a random action from the best actions
+    chosen_action = random.choice(best_actions)
+    #Store the max value so we don't have to recompute it later:
+    self.previous_state_val_maxed_over_actions = max_val
+    
+    return chosen_action
+    
+
     
   def getPolicy(self, state):
     '''Get the best action to take in this state.  If there are no legal actions, return None.'''

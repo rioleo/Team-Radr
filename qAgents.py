@@ -16,7 +16,7 @@ import game
 from util import nearestPoint
 import regularMutation
 import qLearn
-from database import db #you will have troubles if pymongo isn't installed!  :p
+#from database import db #you will have troubles if pymongo isn't installed!  :p
 import sys
 
 #############
@@ -51,7 +51,7 @@ class qLearningAgent(CaptureAgent):
     self.startingFood = 0
     self.theirStartingFood = 0
     self.debug = True
-    self.hardcodedWeights = {'closest_friend_dist':-0.5, 'distanceToEnemyOnEnemySide':1, 'distanceToEnemyOnMySide':1, 'close_to_enemies_in_enemy_territory':-1, 'close_to_enemies_in_friendly_territory': 1, 'numInvaders': -100}
+    self.hardcodedWeights = {'closest_friend_dist':-0.5, 'distanceToEnemyOnEnemySide':1, 'distanceToEnemyOnMySide':1, 'close_to_enemies_in_enemy_territory':-0.5, 'close_to_enemies_in_friendly_territory': 0.5, 'numInvaders': -100}
     
     #used for estimating the enemy pos
     self.legalPositions = None

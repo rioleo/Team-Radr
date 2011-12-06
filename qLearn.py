@@ -75,7 +75,7 @@ def transition_reward(state1, state2, agent):
 
     #Scale the numbers going towards reward calculation
     total_reward = 0
-    total_reward += proximity_reward_delta * 1
+    # total_reward += proximity_reward_delta * 1
     total_reward += new_pellets_eaten
     # total_reward -= eaten_penalty * 2
 

@@ -51,7 +51,7 @@ class qLearningAgent(CaptureAgent):
     self.startingFood = 0
     self.theirStartingFood = 0
     self.debug = True
-    self.hardcodedWeights = {'closest_friend_dist':100}
+    self.hardcodedWeights = {'closest_friend_dist':-0.5}
     
     #used for estimating the enemy pos
     self.legalPositions = None
@@ -209,6 +209,7 @@ class qLearningAgent(CaptureAgent):
     #Re-load the learned weights that were saved.      
     # self.weights = self.load_weights_from_db()
     self.weights = self.hardcodedWeights  
+    # print "JUST LOADED HARDCODED WEIGHTS: "+str(self.weights) --has weights OK
     #Store food info at the beginning of the game:
     if not self.firstTurnComplete:
       self.firstTurnComplete = True
@@ -223,7 +224,7 @@ class qLearningAgent(CaptureAgent):
     else:
       pass
       #Update learned weights based on latest transition (after first turn)
-      self.update(self.previous_game_state, gameState)
+      # self.update(self.previous_game_state, gameState)
       
     #Pick the best action to take
     actionChosen = self.pickAction(gameState)
@@ -270,6 +271,7 @@ class qLearningAgent(CaptureAgent):
       #Evaluate how good that state would be 
       if self.debug:
         print "\n\n\t\t(Calculating state value for successor state that comes after action: "+str(action)+")"
+        # print "ABOUT TO ENTER STATE_VALUE, PASSING WEIGHTS: "+str(self.weights) --has weights OK
       successor_val = qLearn.state_value(successor_state, self)
       transition_reward = qLearn.transition_reward(state, successor_state, self)
       val = transition_reward + successor_val #IS THIS WARRANTED?  OR SHOULD IT JUST BE THE TRANSITION_REWARD?

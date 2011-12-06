@@ -47,12 +47,12 @@ def calculate_feature_value(state, agent):  #Do not change this line
       distances_to_closest_pellet[agent_index] = closest_pellet_dist
       closest_pellets[agent_index] = closest_pellet
     # distances_to_closest_pellet.sort()
-      print "closest pellet for agent:", agent_index, "which is at", position, "is at ", closest_pellet, "with a distance of", closest_pellet_dist
+      # print "closest pellet for agent:", agent_index, "which is at", position, "is at ", closest_pellet, "with a distance of", closest_pellet_dist
     # min_distance = min(distances_to_closest_pellet)
     # avg_distance = float(sum(distances_to_closest_pellet))/float(len(distances_to_closest_pellet))
     for agent_index in friends_indices:
       feature_name = "agent"+str(agent_index)+"_dist_to_closest_pellet"
-      feature_values[feature_name] = distances_to_closest_pellet[agent_index]
+      # feature_values[feature_name] = distances_to_closest_pellet[agent_index]
       
     
     # feature_values["min_dist_to_closest_pellet"] = min_distance 
@@ -88,8 +88,12 @@ def calculate_feature_value(state, agent):  #Do not change this line
       closest_friend_dist = min(distances)
       closest_friend_distances.append(closest_friend_dist)
     # feature_values["min_dist_to_closest_friend"] = 1/(min(closest_friend_distances)+1)
-    #feature_values["closest_friend_dist"] = 1/(float(closest_friend_dist+1)*float(closest_friend_dist+1))
-    feature_values["closest_friend_dist"] = float(closest_friend_dist+1)
+    min_closest_friend_dist = min(closest_friend_distances)
+    print "closest_friend_distances: "+str(closest_friend_distances)
+    print "closest_friend_dist: "+str(closest_friend_dist)
+    feature_values["closest_friend_dist"] = 1/(float(min_closest_friend_dist+1)*float(min_closest_friend_dist+1))
+    print "closest_friend_dist feature val: "+str(feature_values["closest_friend_dist"])
+    # feature_values["closest_friend_dist"] = float(closest_friend_dist+1)
 
     
    
@@ -124,8 +128,6 @@ def calculate_feature_value(state, agent):  #Do not change this line
       # feature_values["two_agents_share_same_closest_pellet"] = 0
       pass
 
-
-    return {}
     return feature_values
         
         

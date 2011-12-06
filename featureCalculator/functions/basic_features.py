@@ -89,12 +89,11 @@ def calculate_feature_value(state, agent):  #Do not change this line
       closest_friend_distances.append(closest_friend_dist)
     # feature_values["min_dist_to_closest_friend"] = 1/(min(closest_friend_distances)+1)
     min_closest_friend_dist = min(closest_friend_distances)
-    print "closest_friend_distances: "+str(closest_friend_distances)
-    print "closest_friend_dist: "+str(closest_friend_dist)
+    # print "closest_friend_distances: "+str(closest_friend_distances)
+    # print "closest_friend_dist: "+str(closest_friend_dist)
     feature_values["closest_friend_dist"] = 1/(float(min_closest_friend_dist+1)*float(min_closest_friend_dist+1))
-    print "closest_friend_dist feature val: "+str(feature_values["closest_friend_dist"])
+    # print "closest_friend_dist feature val: "+str(feature_values["closest_friend_dist"])
     # feature_values["closest_friend_dist"] = float(closest_friend_dist+1)
-
     
    
         

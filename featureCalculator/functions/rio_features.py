@@ -44,7 +44,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
 		# The point where highest density
 		highDensity = max(dotmap.iteritems(), key=operator.itemgetter(1))[0]
 
-	feature_values["distanceToHighDensity"] = (1 if agent.getMazeDistance(highDensity, position) < 10 else 0)
+  # feature_values["distanceToHighDensity"] = (1 if agent.getMazeDistance(highDensity, position) < 10 else 0)
 
 	return feature_values
         

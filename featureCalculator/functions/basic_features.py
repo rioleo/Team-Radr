@@ -20,70 +20,92 @@ def calculate_feature_value(state, agent):  #Do not change this line
     #Create dict to be returned
     feature_values = {}
     #Set up some useful variables
-    position = agent.getPosition(state)
-    enemies = agent.getOpponentPositions(state) #None for agents w dist > 5
+    enemy_positions = agent.getOpponentPositions(state) #None for agents w dist > 5
+    friend_positions = agent.getTeamPositions(state)
     walls = state.getWalls()
     food = agent.getFood(state)
     
-    #Create features for the distance to the nearest food, as well as for the number of nearby pellets.  Note the closest_pellet calculation is used below to figure out if two agents are going after the same goal.
-    closest_pellet_dist = float("inf")
-    within_5 = []
-    within_3 = []
-    for pellet in food.asList():
-      this_dist = agent.getMazeDistance(position, pellet)
-      if this_dist < closest_pellet_dist:
-        closest_pellet_dist = this_dist
-        closest_pellet = pellet
-      if this_dist < 5:
-        within_5.append(pellet)
-        if this_dist < 3:
-          within_3.append(pellet)
-    feature_values["closest_pellet_dist"] = 1/float(closest_pellet_dist+1)
+    #Get the other agents on my team:
+    if state.isOnRedTeam(agent.index):
+      friends_indices = state.getRedTeamIndices()
+    else:
+      friends_indices = state.getBlueTeamIndices()
+      
+    
+    #Create features for the average teammate distance to the nearest food (to it), as well as for the number of nearby pellets.
+    distances_to_closest_pellet = {}
+    closest_pellets = {}
+    for agent_index in friends_indices:
+      # position = friend.getPosition(state)
+      position = state.getAgentState(agent_index).getPosition()
+      closest_pellet_dist = float("inf")
+      for pellet in food.asList():
+        this_dist = agent.getMazeDistance(position, pellet)
+        if this_dist < closest_pellet_dist:
+          closest_pellet_dist = this_dist
+          closest_pellet = pellet
+      distances_to_closest_pellet[agent_index] = closest_pellet_dist
+      closest_pellets[agent_index] = closest_pellet
+    # distances_to_closest_pellet.sort()
+    # print "distances_to_closest_pellet:", distances_to_closest_pellet
+    # min_distance = min(distances_to_closest_pellet)
+    # avg_distance = float(sum(distances_to_closest_pellet))/float(len(distances_to_closest_pellet))
+    for agent_index in friends_indices:
+      feature_name = "agent"+str(agent_index)+"_dist_to_closest_pellet"
+      #feature_values[feature_name] = distances_to_closest_pellet[agent_index]
+      
+    
+    # feature_values["min_dist_to_closest_pellet"] = min_distance 
+    # feature_values["avg_dist_to_closest_pellet"] = avg_distance
+    # feature_values["closest_pellet_dist"] = 1/float(closest_pellet_dist+1)
     # feature_values["num_pellets_within_5_dist"] = len(within_5)
     # feature_values["num_pellets_within_3_dist"] = len(within_3)
     
     #How much food has been eaten?
-    starting_food_count = agent.theirStartingFood
+    starting_food_count = agent.startingFoodToEat
     current_food_count = float(len(food.asList()))
     feature_values["percent_food_eaten"] = (starting_food_count - current_food_count) / starting_food_count
-    
-    
 
-    #Figure out where the closest friend is  
-    #closest_friend_dist = 0
-    distances = []
-    for friend in agent.getTeamPositions(state):
-      dist = agent.getMazeDistance(position, friend)
-      print "friend", friend, "at position", position, dist
-      if dist != 0:
-      	distances.append(dist)
-      # print "distance to friend: ", str(dist)
-      # print "my position: ", position
-      # print "friend position: ", friend
-      #if dist < closest_friend_dist and dist != 0:
-        #closest_friend_dist = dist
-    # print "closest friend found at "+str(closest_friend_dist)+" away."
-    #Remove the one 0 from distances list that represents yourself!  important.  took forever to find out.  :p
+    #Figure out where the closest friends are for each agent
+    closest_friend_distances = []
+    for position in friend_positions:
+      closest_friend_dist = float("inf")
+      distances = []
+      for friend in agent.getTeamPositions(state):
+        dist = agent.getMazeDistance(position, friend)
+        distances.append(dist)
+        # print "distance to friend: ", str(dist)
+        # print "my position: ", position
+        # print "friend position: ", friend
+        if dist < closest_friend_dist:
+          closest_friend_dist = dist
+      # print "closest friend found at "+str(closest_friend_dist)+" away."
+      #Remove the one 0 from distances list that represents yourself!  important.  took forever to find out.  :p
+      for d in distances:
+        if d == 0:
+          distances.remove(d)
+          break
+      closest_friend_dist = min(distances)
+      closest_friend_distances.append(closest_friend_dist)
+    # feature_values["min_dist_to_closest_friend"] = 1/(min(closest_friend_distances)+1)
+    # feature_values["closest_friend_dist"] = 1/(float(closest_friend_dist+1)*float(closest_friend_dist+1))
     
-    if distances:
-        closest_friend_dist = min(distances)
-    else:
-        closest_friend_dist = 0
-    print closest_friend_dist
-    feature_values["closest_friend_dist"] = 1/((closest_friend_dist+1)**2)
-         
+   
+        
     #Create features for whether agent is in friendly or enemy territory
-    if agent.isPositionInTeamTerritory(state, position):
-      feature_values["in_enemy_territory"] = 0
-      feature_values["in_friendly_territory"] = 1
-    else:
-      feature_values["in_enemy_territory"] = 1
-      feature_values["in_friendly_territory"] = 0
+    agents_in_friendly_territory = 0
+    for agent_position in friend_positions:
+      if agent.isPositionInTeamTerritory(state, agent_position):
+        agents_in_friendly_territory += 1
+    percent_agents_in_friendly_territory = float(agents_in_friendly_territory) / len(agent.getTeamPositions(state))
+    feature_values["percent_agents_in_friendly_territory"] = percent_agents_in_friendly_territory
+    
+    #feature_values["averageDistances"] = float(sum(distances))/len(friend_positions)*(len(friend_positions) - agents_in_friendly_territory)
       
     #Is the closest pellet to this agent the same as the closest to another teammate? (are we going for the same thing?)
     #For each agent, calculate the closest pellet to it.  Then if two pellets are the same, return shared_goal True
     closest_pellets = Set()
-    for agent_position in agent.getTeamPositions(state):
+    for agent_position in friend_positions:
       closest_pellet_dist = float("inf")
       closest_pellet = None
       for pellet in food.asList():
@@ -94,9 +116,11 @@ def calculate_feature_value(state, agent):  #Do not change this line
       closest_pellets.add(closest_pellet)
     #Now closest_pellets holds the pellets closest to each agent.
     if len(closest_pellets) < len(agent.getTeamPositions(state)):
-      feature_values["two_agents_share_same_closest_pellet"] = 1
+      # feature_values["two_agents_share_same_closest_pellet"] = 1
+      pass
     else:
-      feature_values["two_agents_share_same_closest_pellet"] = 0
+      # feature_values["two_agents_share_same_closest_pellet"] = 0
+      pass
 
 
     return feature_values

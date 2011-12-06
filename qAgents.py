@@ -50,7 +50,8 @@ class qLearningAgent(CaptureAgent):
     self.firstTurnComplete = False
     self.startingFood = 0
     self.theirStartingFood = 0
-    self.debug = False
+    self.debug = True
+    self.hardcodedWeights = {'closest_friend_dist':100}
     
     #used for estimating the enemy pos
     self.legalPositions = None
@@ -207,19 +208,20 @@ class qLearningAgent(CaptureAgent):
     
     #Re-load the learned weights that were saved.      
     # self.weights = self.load_weights_from_db()
-      
+    self.weights = self.hardcodedWeights  
     #Store food info at the beginning of the game:
     if not self.firstTurnComplete:
       self.firstTurnComplete = True
       self.startingFood = len(self.getFoodYouAreDefending(gameState).asList())
       self.theirStartingFood = len(self.getFood(gameState).asList())
       self.startingFoodToEat = len(self.getFood(gameState).asList())
-      self.weights["agent1_dist_to_closest_pellet"] = -1
-      self.weights["agent2_dist_to_closest_pellet"] = -1
-      self.weights["agent3_dist_to_closest_pellet"] = -1
+      #self.weights["agent1_dist_to_closest_pellet"] = -1
+      #self.weights["agent2_dist_to_closest_pellet"] = -1
+      #self.weights["agent3_dist_to_closest_pellet"] = -1
       
       # self.weights = {'min_dist_to_closest_pellet':1, 'min_dist_to_closest_friend':1, 'percent_agents_in_friendly_territory':1, 'percent_food_eaten':1, 'avg_dist_to_closest_pellet':1, 'previous_state_val_maxed_over_actions':1,'two_agents_share_same_closest_pellet':1}
     else:
+      pass
       #Update learned weights based on latest transition (after first turn)
       self.update(self.previous_game_state, gameState)
       

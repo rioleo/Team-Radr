@@ -5,7 +5,7 @@ import sys
 
 def state_value(state, agent):
     '''Return the value of a state.  This is the feature values for this state * the learned weights for those values, where * is the dot product operator.'''
-    debug = False
+    debug = True
     if debug:
       print "\t\t\tEvaluating state value.  Printing feature weights and values."
     # print "\t\t\t"+ str(agent.weights)
@@ -75,7 +75,7 @@ def transition_reward(state1, state2, agent):
 
     #Scale the numbers going towards reward calculation
     total_reward = 0
-    # total_reward += proximity_reward_delta * 1
+    total_reward += proximity_reward_delta * 1
     total_reward += new_pellets_eaten
     # total_reward -= eaten_penalty * 2
 

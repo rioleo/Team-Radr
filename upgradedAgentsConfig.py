@@ -42,7 +42,7 @@ AgentFactory = 'upgradedAgents.UpgradedAgents'
 
 Partners = []
 
-AgentArgs = {'first':'offense', 'second':'defense', 'third':'defense'}
-#AgentArgs = {}
+#AgentArgs = {'first':'offense', 'second':'defense'}
+AgentArgs = {}
 
 NotifyList = []

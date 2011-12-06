@@ -47,7 +47,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
       distances_to_closest_pellet[agent_index] = closest_pellet_dist
       closest_pellets[agent_index] = closest_pellet
     # distances_to_closest_pellet.sort()
-    # print "distances_to_closest_pellet:", distances_to_closest_pellet
+      print "closest pellet for agent:", agent_index, "which is at", position, "is at ", closest_pellet, "with a distance of", closest_pellet_dist
     # min_distance = min(distances_to_closest_pellet)
     # avg_distance = float(sum(distances_to_closest_pellet))/float(len(distances_to_closest_pellet))
     for agent_index in friends_indices:
@@ -64,7 +64,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
     #How much food has been eaten?
     starting_food_count = agent.startingFoodToEat
     current_food_count = float(len(food.asList()))
-    # feature_values["percent_food_eaten"] = (starting_food_count - current_food_count) / starting_food_count
+    #feature_values["percent_food_eaten"] = (starting_food_count - current_food_count) / starting_food_count
 
     #Figure out where the closest friends are for each agent
     closest_friend_distances = []
@@ -88,15 +88,21 @@ def calculate_feature_value(state, agent):  #Do not change this line
       closest_friend_dist = min(distances)
       closest_friend_distances.append(closest_friend_dist)
     # feature_values["min_dist_to_closest_friend"] = 1/(min(closest_friend_distances)+1)
-    # feature_values["closest_friend_dist"] = 1/(float(closest_friend_dist+1)*float(closest_friend_dist+1))
-     
+    #feature_values["closest_friend_dist"] = 1/(float(closest_friend_dist+1)*float(closest_friend_dist+1))
+    feature_values["closest_friend_dist"] = float(closest_friend_dist+1)
+
+    
+   
+        
     #Create features for whether agent is in friendly or enemy territory
     agents_in_friendly_territory = 0
     for agent_position in friend_positions:
       if agent.isPositionInTeamTerritory(state, agent_position):
         agents_in_friendly_territory += 1
     percent_agents_in_friendly_territory = float(agents_in_friendly_territory) / len(agent.getTeamPositions(state))
-    # feature_values["percent_agents_in_friendly_territory"] = percent_agents_in_friendly_territory
+    #feature_values["percent_agents_in_friendly_territory"] = percent_agents_in_friendly_territory
+    
+    #feature_values["averageDistances"] = float(sum(distances))/len(friend_positions)*(len(friend_positions) - agents_in_friendly_territory)
       
     #Is the closest pellet to this agent the same as the closest to another teammate? (are we going for the same thing?)
     #For each agent, calculate the closest pellet to it.  Then if two pellets are the same, return shared_goal True
@@ -119,6 +125,7 @@ def calculate_feature_value(state, agent):  #Do not change this line
       pass
 
 
+    return {}
     return feature_values
         
         
